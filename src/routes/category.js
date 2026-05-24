@@ -5,42 +5,28 @@ const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 const fs = require("fs");
 
-// Reusable helper
-const parseBoolean = (value, defaultValue = undefined) => {
-  if (value === true || value === "true") return true;
-  if (value === false || value === "false") return false;
-
-  return defaultValue;
-};
-
-// UPDATE CATEGORY
 router.put("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const { name, isActive } = req.body;
-
     const category = await Category.findByPk(id);
-
     if (!category) {
       return res.status(404).json({
-        message: `Category with id=${id} not found`,
+        message: `Category id=${id} not found`,
       });
     }
 
-    // Update only provided fields
     if (name !== undefined) {
       category.name = name;
     }
 
-    const activeValue = parseBoolean(isActive);
-
-    if (activeValue !== undefined) {
-      category.isActive = activeValue;
+    if (isActive !== undefined) {
+      category.isActive = isActive;
     }
 
     await category.save();
 
-    return res.json({
+    res.json({
       message: `Category with id=${id} updated successfully`,
       data: category,
     });
@@ -52,17 +38,15 @@ router.put("/:id", async (req, res) => {
       error: error.message,
     });
   }
-});
+})
 
-// CREATE CATEGORY
-router.post("/", async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    const { name, isActive } = req.body;
+    const { name } = req.body;
 
     const category = await Category.create({
       name,
-      // Default = true if not provided
-      isActive: parseBoolean(isActive, true),
+      isActive: true,
     });
 
     return res.status(201).json({
@@ -77,7 +61,7 @@ router.post("/", async (req, res) => {
       error: error.message,
     });
   }
-});
+})
 
 router.delete("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
