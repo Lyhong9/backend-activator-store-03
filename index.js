@@ -10,7 +10,10 @@ const authRoute = require("./src/routes/auth");
 const authMiddleware = require("./src/middlewares/authMiddleware");
 const productRoute = require("./src/routes/product");
 const categoryRoute = require("./src/routes/category");
-const fileUpload = require("express-fileupload");
+const fileUpload = require('express-fileupload');
+const customerRoute = require("./src/routes/customer")
+const orderDetailRoute = require("./src/routes/orderdetail");
+const orderRoute = require("./src/routes/order");
 
 const cors = require("cors"); // Import the CORS middleware
 const allowedOrigins = [
@@ -32,11 +35,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
-db.sequelize.authenticate()
-  .then(() => console.log("Database connected successfully"))
-  .catch(err => console.error("Connection failed:", err));
-
 app.use(
   fileUpload({
     limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
@@ -51,7 +49,13 @@ app.use("/api/v1/users", userRoute);
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/products", productRoute);
 app.use("/api/v1/categories", categoryRoute);
+app.use("/api/v1/customers", customerRoute);
+app.use("/api/v1/orderdetails", orderDetailRoute);
+app.use("/api/v1/orders", orderRoute);
 
+db.sequelize.authenticate()
+  .then(() => console.log("Database connected successfully"))
+  .catch(err => console.error("Connection failed:", err));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

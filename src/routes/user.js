@@ -61,7 +61,7 @@ router.delete("/images/:imageId", async (req, res) => {
   })
 
   if(!image){
-    return res(404).json({
+    return res.status(404).json({
       message: `User Image id=${imageId} not found`
     })
   }
@@ -87,8 +87,11 @@ router.delete("/images/:imageId", async (req, res) => {
 // Image upload
 router.post("/:id/upload", async (req, res) => {
   try {
-    // const file = req.files.file;
-    // const productId = req.files.productId
+    if (!req.files || !req.files.file) {
+      return res.status(400).json({
+        message: "No file uploaded",
+      });
+    }
 
     const { file } = req.files;
     const userId = req.params.id;
@@ -96,7 +99,7 @@ router.post("/:id/upload", async (req, res) => {
     // validate user id
     const user = await User.findByPk(userId);
     if (!user) {
-      res.json({
+      return res.status(404).json({
         message: `User id=${userId} not found`,
       });
     }

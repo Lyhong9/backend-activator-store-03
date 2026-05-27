@@ -150,8 +150,11 @@ router.put("/:id", async (req, res) => {
 // Image upload
 router.post("/:id/upload", async (req, res) => {
   try {
-    // const file = req.files.file;
-    // const productId = req.files.productId
+    if (!req.files || !req.files.file) {
+      return res.status(400).json({
+        message: "No file uploaded",
+      });
+    }
 
     const { file } = req.files;
     const productId = req.params.id;
@@ -159,10 +162,10 @@ router.post("/:id/upload", async (req, res) => {
     // validate product id
     const product = await Product.findByPk(productId);
     if (!product) {
-  return res.status(404).json({
-    message: `Product id=${productId} not found`,
-  });
-}
+      return res.status(404).json({
+        message: `Product id=${productId} not found`,
+      });
+    }
 
     console.log("File", file);
 

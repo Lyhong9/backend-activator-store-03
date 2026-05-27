@@ -144,7 +144,7 @@ router.delete("/images/:imageId", async (req, res) => {
   });
 
   if (!image) {
-    return res(404).json({
+    return res.status(404).json({
       message: `Category Image id=${imageId} not found`,
     });
   }
@@ -170,8 +170,11 @@ router.delete("/images/:imageId", async (req, res) => {
 // Image upload
 router.post("/:id/upload", async (req, res) => {
   try {
-    // const file = req.files.file;
-    // const productId = req.files.productId
+    if (!req.files || !req.files.file) {
+      return res.status(400).json({
+        message: "No file uploaded",
+      });
+    }
 
     const { file } = req.files;
     const categoryId = req.params.id;
@@ -179,7 +182,7 @@ router.post("/:id/upload", async (req, res) => {
     // validate category id
     const category = await Category.findByPk(categoryId);
     if (!category) {
-      res.json({
+      return res.status(404).json({
         message: `Category id=${categoryId} not found`,
       });
     }
