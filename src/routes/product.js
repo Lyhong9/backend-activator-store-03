@@ -4,6 +4,7 @@ const { Product, Category, ProductImage } = require('../../models');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');         
 const fs = require('fs'); 
+const { Op } = require('sequelize');
 
 router.delete("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
@@ -221,28 +222,60 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const products = await Product.findAll({
-        include: [
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    let whereCondition = {};
+
+    const search = req.query.search;
+
+    if (search) {
+      whereCondition.name = {
+        [Op.iLike]: `%${search}%`,
+      };
+    }
+
+    if (req.query.categoryId) {
+      whereCondition.categoryId = req.query.categoryId;
+    }
+
+    const { rows: products, count: total } = await Product.findAndCountAll({
+      where: whereCondition,
+      distinct: true,
+      offset,
+      limit: parseInt(limit),
+      order: [['createdAt', 'DESC']],
+      include: [
         {
           model: Category,
           as: 'category',
           attributes: ['id', 'name'],
-        },
-        {
+        },{
           model: ProductImage,
           as: 'productImages',
-          attributes: ['id', 'imageUrl', 'fileName'],
+          attributes: ['id', 'productId', 'imageUrl', 'fileName' ],
         }
       ],
-      });
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
     res.json({
-      message: 'Get all Products successfully',
       data: products,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages,
+        nextPage: page < totalPages ? page + 1 : null,
+        prevPage: page > 1 ? page - 1 : null,
+      },
     });
   } catch (error) {
-    console.log(error);
+    console.log('Getting products error:', error);
   }
 });
 
