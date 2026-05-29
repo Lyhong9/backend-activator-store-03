@@ -4,6 +4,7 @@ const { Category, CategoryImage, Product } = require("../../models");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 const fs = require("fs");
+const { Op } = require("sequelize");
 
 router.put("/:id", async (req, res) => {
   try {
@@ -223,28 +224,58 @@ router.post("/:id/upload", async (req, res) => {
 
 router.get("", async (req, res) => {
   try {
-    const categories = await Category.findAll({
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 7;
+    const offset = (page - 1) * limit;
+
+    let whereCondition = {};
+
+    const search = req.query.search;
+
+    if (search) {
+      whereCondition.name = {
+        [Op.iLike]: `%${search}%`,
+      };
+    }
+
+    const { rows: categories, count: total } = await Category.findAndCountAll({
+      where: whereCondition,
+      distinct: true,
+      offset,
+      limit: parseInt(limit),
+      order: [['createdAt', 'DESC']],
       include: [
         {
           model: CategoryImage,
-          as: "categoryImages",
-          attributes: ["id", "imageUrl", "fileName"],
+          as: 'categoryImages',
+          attributes: ['id', 'imageUrl', 'fileName'],
         },
         {
           model: Product,
-          as: "products",
+          as: 'products',
         },
       ],
     });
 
+    const totalPages = Math.ceil(total / limit);
+
     res.json({
-      message: "Get all categories successfully",
+      message: 'Get all categories successfully',
       data: categories,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages,
+        nextPage: page < totalPages ? page + 1 : null,
+        prevPage: page > 1 ? page - 1 : null,
+      },
     });
+
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: "Get all categories failed",
+      message: 'Get all categories failed',
       error: error.message,
     });
   }

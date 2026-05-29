@@ -4,6 +4,7 @@ const { User, UserImage } = require('../../models');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');         
 const fs = require('fs'); 
+const { Op } = require('sequelize');
 
 router.delete('/:id', async (req, res) => {
   const id = parseInt(req.params.id);
@@ -140,20 +141,56 @@ router.post("/:id/upload", async (req, res) => {
 
 router.get('', async (req, res) => {
   try {
-    const users = await User.findAll({
-      include: [{
-        model: UserImage,
-        as: 'userImages',
-        attributes: ['id', 'imageUrl', 'fileName'],
-      },
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    let whereCondition = {};
+
+    const search = req.query.search;
+
+    if (search) {
+      whereCondition.name = {
+        [Op.iLike]: `%${search}%`,
+      };
+    }
+
+    const { rows: users, count: total } = await User.findAndCountAll({
+      where: whereCondition,
+      distinct: true,
+      offset,
+      limit: parseInt(limit),
+      order: [['createdAt', 'DESC']],
+      include: [
+        {
+          model: UserImage,
+          as: 'userImages',
+          attributes: ['id', 'imageUrl', 'fileName'],
+        },
       ],
     });
+
+    const totalPages = Math.ceil(total / limit);
+
     res.json({
       message: 'Get all users successfully',
       data: users,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages,
+        nextPage: page < totalPages ? page + 1 : null,
+        prevPage: page > 1 ? page - 1 : null,
+      },
     });
+
   } catch (error) {
     console.log(error);
+    res.status(500).json({
+      message: 'Get all users failed',
+      error: error.message,
+    });
   }
 });
 
