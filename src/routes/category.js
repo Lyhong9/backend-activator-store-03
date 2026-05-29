@@ -41,29 +41,6 @@ router.put("/:id", async (req, res) => {
   }
 })
 
-router.post('/', async (req, res) => {
-  try {
-    const { name } = req.body;
-
-    const category = await Category.create({
-      name,
-      isActive: true,
-    });
-
-    return res.status(201).json({
-      message: "Category created successfully",
-      data: category,
-    });
-  } catch (error) {
-    console.log(error);
-
-    return res.status(500).json({
-      message: "Create category failed",
-      error: error.message,
-    });
-  }
-})
-
 router.delete("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
 
@@ -167,6 +144,29 @@ router.delete("/images/:imageId", async (req, res) => {
     message: "Category Image deleted successfully",
   });
 });
+
+router.post('/', async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    const category = await Category.create({
+      name,
+      isActive: true,
+    });
+
+    return res.status(201).json({
+      message: "Category created successfully",
+      data: category,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      message: "Create category failed",
+      error: error.message,
+    });
+  }
+})
 
 // Image upload
 router.post("/:id/upload", async (req, res) => {
