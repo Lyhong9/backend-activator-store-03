@@ -203,14 +203,14 @@ router.post("/:id/upload", async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { name, categoryId, price, qty } = req.body;
+    const { name, categoryId, price, qty, isActive } = req.body;
 
     const product = await Product.create({
       name,
       categoryId,
       price,
       qty,
-      isActive: true,
+      isActive: isActive ?? true,
     });
 
     res.json({

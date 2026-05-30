@@ -147,11 +147,11 @@ router.delete("/images/:imageId", async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, isActive } = req.body;
 
     const category = await Category.create({
       name,
-      isActive: true,
+      isActive: isActive ?? true,
     });
 
     return res.status(201).json({
