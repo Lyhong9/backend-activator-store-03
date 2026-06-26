@@ -11,6 +11,11 @@ router.get('', async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
+    res.status(500).json({
+      message: 'Get all order details failed',
+      error: error.message,
+    });
   }
 });
 
@@ -24,6 +29,11 @@ router.get('/:id', async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
+    res.status(500).json({
+      message: 'Get order detail failed',
+      error: error.message,
+    });
   }
 });
 
@@ -40,6 +50,11 @@ router.delete('/:id', async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
+    res.status(500).json({
+      message: 'Delete order detail failed',
+      error: error.message,
+    });
   }
 });
 
@@ -65,6 +80,11 @@ router.put('/:id', async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
+    res.status(500).json({
+      message: 'Update order detail failed',
+      error: error.message,
+    });
   }
 });
 

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Customer } = require("../../models");
+const { Customer, Order } = require("../../models");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
@@ -67,6 +67,11 @@ router.get('', async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
+    res.status(500).json({
+      message: 'Get all customers failed',
+      error: error.message,
+    });
   }
 });
 
@@ -86,6 +91,11 @@ router.get('/:id', async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
+    res.status(500).json({
+      message: 'Get customer failed',
+      error: error.message,
+    });
   }
 });
 

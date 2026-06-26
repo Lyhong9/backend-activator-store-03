@@ -219,6 +219,11 @@ router.post('/', async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
+    return res.status(500).json({
+      message: 'Create product failed',
+      error: error.message,
+    });
   }
 });
 
@@ -276,6 +281,11 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     console.log('Getting products error:', error);
+
+    return res.status(500).json({
+      message: 'Get products failed',
+      error: error.message,
+    });
   }
 });
 
@@ -302,6 +312,11 @@ router.get('/:id', async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
+    return res.status(500).json({
+      message: 'Get product failed',
+      error: error.message,
+    });
   }
 });
 

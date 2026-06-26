@@ -53,36 +53,41 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.delete("/images/:imageId", async (req, res) => {
-  const { imageId } = req.params;
+  try {
+    const { imageId } = req.params;
 
- const image = await UserImage.findOne({
-    where: {
-      id: imageId
+    const image = await UserImage.findOne({
+      where: {
+        id: imageId,
+      },
+    });
+
+    if (!image) {
+      return res.status(404).json({
+        message: `User Image id=${imageId} not found`,
+      });
     }
-  })
 
-  if(!image){
-    return res.status(404).json({
-      message: `User Image id=${imageId} not found`
-    })
+    const fileName = image.imageUrl.split("/").pop();
+    const filePath = path.join(process.cwd(), "uploads/users", fileName);
+
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    await image.destroy();
+
+    return res.json({
+      message: "User Image deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      message: "Delete user image failed",
+      error: error.message,
+    });
   }
-
-  // remove image from folder uploads
-  // const fileName = image.imageUrl.split("/").pop()
-
-  const filePath = path.join(process.cwd(), "../uploads/users", fileName) // read root folder + uploads/users + fileName
-
-  if(fs.existsSync(filePath)){ // check if file exist in folder uploads/users
-    fs.unlinkSync(filePath) // remove file from folder uploads/users
-  }
-
-  // remove data from db
-  await image.destroy()
-
-  return res.json({
-    message: "User Image deleted successfully"
-  })
-
 });
 
 // Image upload
@@ -210,6 +215,11 @@ router.get('/:id', async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
+    res.status(500).json({
+      message: 'Get user failed',
+      error: error.message,
+    });
   }
 });
 

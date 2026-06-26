@@ -12,7 +12,7 @@ router.post('/', async (req, res) => {
     console.log('Customer', customer);
 
     if (!customer) {
-      res.json({
+      return res.status(404).json({
         message: 'Customer not found',
       });
     }
@@ -94,6 +94,11 @@ router.post('/', async (req, res) => {
     });
   } catch (error) {
     console.log('Error', error);
+
+    res.status(500).json({
+      message: 'Create order failed',
+      error: error.message,
+    });
   }
 });
 
@@ -120,6 +125,11 @@ router.get('', async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
+    res.status(500).json({
+      message: 'Get all orders failed',
+      error: error.message,
+    });
   }
 });
 
@@ -133,6 +143,11 @@ router.get('/:id', async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
+    res.status(500).json({
+      message: 'Get order failed',
+      error: error.message,
+    });
   }
 });
 
@@ -158,6 +173,11 @@ router.put('/:id', async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
+    res.status(500).json({
+      message: 'Update order failed',
+      error: error.message,
+    });
   }
 });
 
